@@ -37,28 +37,27 @@ client.login(); // discord.js will automatically load your token from process.en
 ```
 
 ## Events
-```js
-manager.on("voiceChannelCreate", (voiceChannel) => {});
+```ts
+manager.on("voiceChannelCreate", (voiceChannel: VoiceChannel) => {});
 
-manager.on("voiceChannelDelete", (voiceChannel) => {});
+manager.on("voiceChannelDelete", (voiceChannel: VoiceChannel) => {});
 
-manager.on("textChannelCreate", (textChannel) => {});
+manager.on("textChannelCreate", (textChannel: TextChannel) => {});
 
-manager.on("textChannelDelete", (textChannel) => {});
+manager.on("textChannelDelete", (textChannel: TextChannel) => {});
 
-manager.on("childPrefix", (channel) => {});
+manager.on("childPrefix", (channel: GuildChannel) => {});
 
-manager.on("childCreate", (member, child, parent) => {});
+manager.on("childCreate", (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
 
-manager.on("childDelete", (member, child, parent) => {});
+manager.on("childDelete", (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
 
-manager.on("channelRegister", (parent) => {});
+manager.on("channelRegister", (parent: ParentChannelData) => {});
 
-manager.on("channelUnregister", (parent) => {});
+manager.on("channelUnregister", (parent: ParentChannelData) => {});
 
-manager.on("error", (error, message) => {});
+manager.on("error", (error: Error, message: string) => {});
 ```
 
 ## Can be improved (PR accepted)
 - Creation & deletion of text channel through textual command (`./src/handlers/message`)
-- Auto detection of temporary channels in case of restart (`./src/handlers/ready`)
