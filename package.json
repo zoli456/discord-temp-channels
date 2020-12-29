@@ -21,7 +21,7 @@
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\" --tab-width 4",
     "lint": "tslint -p tsconfig.json",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "discord.js": "^12.5.1"
