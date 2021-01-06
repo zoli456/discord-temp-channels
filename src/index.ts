@@ -1,4 +1,4 @@
-import { Client, Snowflake, GuildChannel, Collection } from 'discord.js';
+import { Client, Snowflake, GuildChannel, Collection, ClientOptions } from 'discord.js';
 import { EventEmitter } from 'events';
 
 import { ParentChannelData, ParentChannelOptions } from './types';
@@ -16,25 +16,25 @@ import {
  * @class TempChannelsManager
  * @extends {EventEmitter}
  */
-class TempChannelsManager extends EventEmitter {
-  /**
-   *The client instance.
-   * @type {Client}
-   * @memberof TempChannelsManager
-   */
-  public client: Client;
-
+export class TempChannelsManager extends EventEmitter {
   /**
    *The collection of registered parent channels.
+   * @name TempChannelsManager#channels
    * @type {Collection<Snowflake, ParentChannelData>}
-   * @memberof TempChannelsManager
    */
-  public channels: Collection<Snowflake, ParentChannelData>;
+  public readonly channels: Collection<Snowflake, ParentChannelData>;
+
+  /**
+   * The client that instantiated this Manager
+   * @name TempChannelsManager#client
+   * @type {Client}
+   * @readonly
+   */
+  public readonly client: Client;
 
   /**
    *Creates an instance of TempChannelsManager.
-   * @param {Client} client
-   * @memberof TempChannelsManager
+   * @param {Client} [client] The client that instantiated this Manager
    */
   constructor(client: Client) {
     super();
@@ -44,8 +44,8 @@ class TempChannelsManager extends EventEmitter {
 
     this.client.on('voiceStateUpdate', async (oldState, newState) => handleVoiceStateUpdate(this, oldState, newState));
     this.client.on('channelUpdate', async (oldState, newState) => handleChannelUpdate(this, oldState as GuildChannel, newState as GuildChannel));
-    this.client.on('channelDelete', async channel => handleChannelDelete(this, channel as GuildChannel));
-    
+    this.client.on('channelDelete', async (channel) => handleChannelDelete(this, channel as GuildChannel));
+
     this.on('channelRegister', async (parent) => handleRegistering(this, parent));
     this.on('createText', async (message) => handleTextCreation(this, message));
   }
@@ -62,7 +62,6 @@ class TempChannelsManager extends EventEmitter {
    *       childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
    *       childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
    *     }]
-   * @memberof TempChannelsManager
    */
   registerChannel(
     channelID: Snowflake,
@@ -74,7 +73,7 @@ class TempChannelsManager extends EventEmitter {
       childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
       childTextFormat: (name, count) => `droom-${count}_${name}`,
       childTextFormatRegex: /^droom-\d+_/i,
-      childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
+      childPermissionOverwriteOption: { MANAGE_CHANNELS: true },
     }
   ) {
     const channelData: ParentChannelData = { channelID, options, children: [] };
@@ -86,8 +85,6 @@ class TempChannelsManager extends EventEmitter {
    *Unregisters a parent channel. When a user joins it, nothing will happen.
    *
    * @param {Snowflake} channelID
-   * @returns
-   * @memberof TempChannelsManager
    */
   unregisterChannel(channelID: Snowflake) {
     const channel = this.channels.get(channelID);
@@ -100,4 +97,29 @@ class TempChannelsManager extends EventEmitter {
   }
 }
 
-export = TempChannelsManager;
+/**
+ * A wrapper of {@link Client} that provides a support for the TempChannelsManager.
+ * @export
+ * @class ClientWithTempManager
+ * @extends {Client}
+ */
+export class ClientWithTempManager extends Client {
+  /**
+   * An instance of {@link TempChannelsManager} that currently manages all the temporary channels for the client.
+   *
+   * @name ClientWithTempManager#tempChannelsManager
+   * @type {TempChannelsManager}
+   */
+  public tempChannelsManager: TempChannelsManager;
+
+  /**
+   *Creates an instance of ClientWithTempManager.
+   * @param {ClientOptions} [options] Options for the client
+   * @memberof ClientWithTempManager
+   */
+  constructor(options?: ClientOptions) {
+    super(options);
+
+    this.tempChannelsManager = new TempChannelsManager(this);
+  }
+}

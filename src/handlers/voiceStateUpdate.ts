@@ -1,5 +1,5 @@
 import { VoiceState } from 'discord.js';
-import TempChannelsManager from '../index';
+import { TempChannelsManager } from '..';
 
 export const handleVoiceStateUpdate = async (manager: TempChannelsManager, oldState: VoiceState, newState: VoiceState) => {
   const voiceChannelLeft = !!oldState.channelID && !newState.channelID;

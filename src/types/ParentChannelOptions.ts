@@ -1,9 +1,4 @@
-import {
-  PermissionOverwriteOption,
-  RoleResolvable,
-  Snowflake,
-  UserResolvable,
-} from 'discord.js';
+import { PermissionOverwriteOption, RoleResolvable, Snowflake, UserResolvable } from 'discord.js';
 
 type Resolvables = RoleResolvable | UserResolvable;
 

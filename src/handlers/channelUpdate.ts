@@ -1,5 +1,5 @@
 import { GuildChannel } from 'discord.js';
-import TempChannelsManager from '../index';
+import { TempChannelsManager } from '..';
 
 export const handleChannelUpdate = async (manager: TempChannelsManager, oldState: GuildChannel, newState: GuildChannel) => {
   if (oldState.id !== newState.id) return;

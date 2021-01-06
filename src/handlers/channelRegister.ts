@@ -1,5 +1,5 @@
 import { Collection, VoiceChannel, Snowflake, GuildChannel } from 'discord.js';
-import TempChannelsManager from '../index';
+import { TempChannelsManager } from '..';
 import { ChildChannelData, ParentChannelData } from '../types';
 
 export const handleRegistering = async (manager: TempChannelsManager, parent: ParentChannelData) => {

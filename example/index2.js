@@ -1,13 +1,11 @@
-const { Client } = require('discord.js');
-const { TempChannelsManager } = require('../lib');
+const { ClientWithTempManager } = require('../lib');
 
-const client = new Client();
-const manager = new TempChannelsManager(client);
+const client = new ClientWithTempManager();
 
 client.on('ready', () => {
   console.log('Connected!');
 
-  manager.registerChannel('CHANNEL_ID', {
+  client.tempChannelsManager.registerChannel('CHANNEL_ID', {
     childCategory: 'CATEGORY_ID',
     childAutoDelete: true,
     childAutoDeleteIfOwnerLeaves: false,
@@ -18,9 +16,9 @@ client.on('ready', () => {
   });
 });
 
-client.on('message', msg => {
+client.on('message', (msg) => {
   if (msg.content.startsWith('!createText')) {
-    manager.emit('createText', msg);
+    client.tempChannelsManager.emit('createText', msg);
   }
 });
 

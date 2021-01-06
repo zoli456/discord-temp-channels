@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import TempChannelsManager from '..';
+import { TempChannelsManager } from '..';
 
 export const handleTextCreation = async (manager: TempChannelsManager, message: Message) => {
   if (!message) return;

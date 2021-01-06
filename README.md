@@ -15,9 +15,9 @@ This framework works the same way its parent does (see [discord-temp-channels](h
 npm install --save @hunteroi/discord-temp-channels
 ```
 
-## Example
+## Examples
 
-See [./example/index.js](example/index.js).
+See [./example/index.js](example/index.js) and [./example/index2.js](example/index2.js).
 
 ## Events
 ```ts

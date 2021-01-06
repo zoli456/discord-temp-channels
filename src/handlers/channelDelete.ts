@@ -1,5 +1,5 @@
 import { GuildChannel, VoiceChannel, Snowflake } from 'discord.js';
-import TempChannelsManager from '../index';
+import { TempChannelsManager } from '..';
 import { ChildChannelData } from '../types';
 
 const isVoiceOrTextChannel = (c: ChildChannelData, id: Snowflake) => c.voiceChannel.id === id || c.textChannel?.id === id;
