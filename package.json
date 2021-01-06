@@ -4,15 +4,17 @@
   "description": "Based on Androz2091's package, this is a simple framework to facilitate the creation of a temporary voice & text channels system using Discord.js",
   "main": "lib/index.js",
   "bugs": {
-    "url": "https://github.com/Androz2091/discord-temp-channels/issues"
+    "url": "https://github.com/HunteRoi/discord-temp-channels/issues"
   },
-  "homepage": "https://github.com/Androz2091/discord-temp-channels#readme",
+  "homepage": "https://github.com/HunteRoi/discord-temp-channels#readme",
   "keywords": [
-    "discordjs"
+    "discordjs",
+    "temporary channels",
+    "discordbot"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Androz2091/discord-temp-channels.git"
+    "url": "git+https://github.com/HunteRoi/discord-temp-channels.git"
   },
   "author": "HunteRoi",
   "license": "MIT",
