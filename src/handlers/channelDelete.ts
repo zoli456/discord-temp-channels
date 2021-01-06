@@ -1,17 +1,20 @@
-import { GuildChannel, VoiceChannel } from 'discord.js';
+import { GuildChannel, VoiceChannel, Snowflake } from 'discord.js';
 import TempChannelsManager from '../index';
+import { ChildChannelData } from '../types';
 
-export const handleChannelDelete = async (manager: TempChannelsManager, channel: GuildChannel) => {
+const isVoiceOrTextChannel = (c: ChildChannelData, id: Snowflake) => c.voiceChannel.id === id || c.textChannel?.id === id;
+
+export const handleChannelDelete = async (manager: TempChannelsManager, channel: GuildChannel) => { 
   let parent = manager.channels.get(channel.id);
   if (parent) {
     manager.channels.delete(channel.id);
     return manager.emit('channelUnregister', parent);
   }
 
-  parent = manager.channels.find(p => p.children.some(c => c.voiceChannel.id === channel.id || c.textChannel.id === channel.id));
+  parent = manager.channels.find(p => p.children.some(c => isVoiceOrTextChannel(c, channel.id)));
   if (!parent) return;
   
-  const child = parent.children.find(c => c.textChannel.id === channel.id || c.voiceChannel.id === channel.id);
+  const child = parent.children.find(c => isVoiceOrTextChannel(c, channel.id));
   if (!child) return;
 
   const textChannel = child.textChannel;

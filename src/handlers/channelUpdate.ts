@@ -9,14 +9,20 @@ export const handleChannelUpdate = async (manager: TempChannelsManager, oldState
   if (!parent) return;
 
   const child = parent.children.find(c => c.voiceChannel.id === oldState.id || c.textChannel?.id === oldState.id);
-  if(!child) return;
+  if (!child) return;
 
-  const nameDoesNotHavePrefix = !parent.options.childFormatRegex.test(newState.name);
-  if (nameDoesNotHavePrefix) {
+  const isVoice = newState.type === 'voice';
+  const nameDoesNotHavePrefix = isVoice
+    ? !parent.options.childVoiceFormatRegex.test(newState.name)
+    : !parent.options.childTextFormatRegex.test(newState.name);
+  
+    if (nameDoesNotHavePrefix) {
     const count = parent.children.indexOf(child) + 1;
-    const name = parent.options.childFormat(newState.name, count);
+    const name = isVoice
+      ? parent.options.childVoiceFormat(newState.name, count)
+      : parent.options.childTextFormat(newState.name, count);
     newState.setName(name);
     
-    manager.emit("childPrefix", newState);
+    manager.emit('childPrefix', newState);
   }
 };

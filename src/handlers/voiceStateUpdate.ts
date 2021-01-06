@@ -26,7 +26,7 @@ export const handleVoiceStateUpdate = async (manager: TempChannelsManager, oldSt
         await child.voiceChannel.delete();
         manager.emit('voiceChannelDelete', child.voiceChannel);
 
-        parent.children = parent.children.filter(c => c.voiceChannel.id !== c.voiceChannel.id);
+        parent.children = parent.children.filter(c => c.voiceChannel.id !== child.voiceChannel.id);
         manager.emit('childDelete', newState.member, child, manager.client.channels.cache.get(parent.channelID));
       } catch (err) {
         manager.emit('error', err, 'Cannot auto delete channel ' + child.voiceChannel.id);
@@ -39,7 +39,7 @@ export const handleVoiceStateUpdate = async (manager: TempChannelsManager, oldSt
     if (!parent) return;
 
     const count = parent.children.length + 1;
-    const newChannelName = parent.options.childFormat(newState.member.displayName, count);
+    const newChannelName = parent.options.childVoiceFormat(newState.member.displayName, count);
     const voiceChannel = await newState.guild.channels.create(newChannelName, {
       parent: parent.options.childCategory,
       bitrate: parent.options.childBitrate,

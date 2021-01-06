@@ -6,8 +6,8 @@ import {
   handleChannelDelete,
   handleVoiceStateUpdate,
   handleChannelUpdate,
-  handleMessage,
-  handleRegistering
+  handleTextCreation,
+  handleRegistering,
 } from './handlers';
 
 /**
@@ -16,7 +16,7 @@ import {
  * @class TempChannelsManager
  * @extends {EventEmitter}
  */
-export default class TempChannelsManager extends EventEmitter {
+class TempChannelsManager extends EventEmitter {
   /**
    *The client instance.
    * @type {Client}
@@ -34,21 +34,20 @@ export default class TempChannelsManager extends EventEmitter {
   /**
    *Creates an instance of TempChannelsManager.
    * @param {Client} client
-   * @param {string} commandName
    * @memberof TempChannelsManager
    */
-  constructor(client: Client, commandName: string) {
+  constructor(client: Client) {
     super();
 
     this.channels = new Collection();
     this.client = client;
 
-    this.client.on('message', async (message) => handleMessage(this, commandName, message));
     this.client.on('voiceStateUpdate', async (oldState, newState) => handleVoiceStateUpdate(this, oldState, newState));
     this.client.on('channelUpdate', async (oldState, newState) => handleChannelUpdate(this, oldState as GuildChannel, newState as GuildChannel));
     this.client.on('channelDelete', async channel => handleChannelDelete(this, channel as GuildChannel));
     
-    this.on('channelRegister', (parent) => handleRegistering(this, parent));
+    this.on('channelRegister', async (parent) => handleRegistering(this, parent));
+    this.on('createText', async (message) => handleTextCreation(this, message));
   }
 
   /**
@@ -71,8 +70,10 @@ export default class TempChannelsManager extends EventEmitter {
       childCategory: null,
       childAutoDelete: true,
       childAutoDeleteIfOwnerLeaves: false,
-      childFormat: (name, count) => `[DRoom #${count}] ${name}`,
-      childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
+      childVoiceFormat: (name, count) => `[DRoom #${count}] ${name}`,
+      childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
+      childTextFormat: (name, count) => `droom-${count}_${name}`,
+      childTextFormatRegex: /^droom-\d+_/i,
       childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
     }
   ) {
@@ -98,3 +99,5 @@ export default class TempChannelsManager extends EventEmitter {
     return this.emit('error', null, `There is no channel with the id ${channelID}`);
   }
 }
+
+export = TempChannelsManager;

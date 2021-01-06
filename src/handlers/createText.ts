@@ -1,11 +1,11 @@
 import { Message } from 'discord.js';
 import TempChannelsManager from '..';
 
-export const handleMessage = async (manager: TempChannelsManager, commandName: string, message: Message) => {
+export const handleTextCreation = async (manager: TempChannelsManager, message: Message) => {
+  if (!message) return;
+  
   const owner = message.member;
-
-  if (!message.content.includes(commandName)) return;
-
+  
   const voiceChannel = message.member.voice.channel;
   if (!voiceChannel || !manager.channels.some(p => p.children.some(c => c.voiceChannel.id === voiceChannel.id))) return;
   const parent = manager.channels.find(p => p.children.some(c => c.voiceChannel.id === voiceChannel.id));
@@ -16,7 +16,7 @@ export const handleMessage = async (manager: TempChannelsManager, commandName: s
 
   if (!child.textChannel) {
     const count = parent.children.indexOf(child) + 1;
-    const newChannelName = parent.options.childFormat(owner.displayName, count);
+    const newChannelName = parent.options.childTextFormat(owner.displayName, count);
 
     const textChannel = await message.guild.channels.create(newChannelName, {
       parent: parent.options.childCategory,

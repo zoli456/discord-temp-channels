@@ -1,8 +1,7 @@
 # Discord Temporary Voice Channels
 
-This framework works the same way its parent does (see [discord-temp-channels](https://github.com/Androz2091/discord-temp-channels) of [Androz2091](https://github.com/Androz2091)) except that it brings a few new features: 
-- create a temporary text channel via a textual command
-- delete a temporary text channel via a textual command
+This framework works the same way its parent does (see [discord-temp-channels](https://github.com/Androz2091/discord-temp-channels) of [Androz2091](https://github.com/Androz2091) except that it brings a few new features: 
+- create/delete a temporary text channel via an event
 - more events like `voiceChannelCreate`, `textChannelCreate` and **2 more**
 - give the temporary channels' owner the `MANAGE_CHANNELS` permission on them
 - give more permissions to users/roles when channels are created (via registered parent options)
@@ -18,46 +17,49 @@ npm install --save @hunteroi/discord-temp-channels
 
 ## Example
 
-```js
-const Discord = require('discord.js');
-const client = new Discord.Client();
-
-const TempChannelsManager = require('@hunteroi/discord-temp-channels');
-const manager = new TempChannelsManager(client, "textchannel");
-
-// Register a new main channel
-manager.registerChannel('688084899537616999', {
-  childCategory: '569985103175090216',
-  childAutoDelete: true,
-  childFormat: (username, count) => `[DRoom #${count}] ${username}`,
-  childFormatRegex: /^\[DRoom #\d+\]\s+.+/i  
-});
-
-client.login(); // discord.js will automatically load your token from process.env.DISCORD_TOKEN if set
-```
+See [./example/index.js](example/index.js).
 
 ## Events
 ```ts
-manager.on("voiceChannelCreate", (voiceChannel: VoiceChannel) => {});
+manager.on('voiceChannelCreate', (voiceChannel: VoiceChannel) => {});
 
-manager.on("voiceChannelDelete", (voiceChannel: VoiceChannel) => {});
+manager.on('voiceChannelDelete', (voiceChannel: VoiceChannel) => {});
 
-manager.on("textChannelCreate", (textChannel: TextChannel) => {});
+manager.on('textChannelCreate', (textChannel: TextChannel) => {});
 
-manager.on("textChannelDelete", (textChannel: TextChannel) => {});
+manager.on('textChannelDelete', (textChannel: TextChannel) => {});
 
-manager.on("childPrefix", (channel: GuildChannel) => {});
+manager.on('childPrefix', (channel: GuildChannel) => {});
 
-manager.on("childCreate", (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
+manager.on('childCreate', (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
 
-manager.on("childDelete", (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
+manager.on('childDelete', (member: GuildMember | ClientUser, child: ChildChannelData, parent: ParentChannelData) => {});
 
-manager.on("channelRegister", (parent: ParentChannelData) => {});
+manager.on('channelRegister', (parent: ParentChannelData) => {});
 
-manager.on("channelUnregister", (parent: ParentChannelData) => {});
+manager.on('channelUnregister', (parent: ParentChannelData) => {});
 
-manager.on("error", (error: Error, message: string) => {});
+manager.on('error', (error: Error, message: string) => {});
 ```
 
-## Can be improved (PR accepted)
-- Creation & deletion of text channel through textual command (`./src/handlers/message`)
+## Commands
+In order to trigger the creation/deletion of a text channel, please emit the event `createText` using your instance of the `TempChannelsManager` class and pass it the message object: 
+```ts
+client.on('message', message => {
+  if (message.content.startsWith('!createText')) {
+    manager.emit('createText', message);
+  }
+});
+```
+
+## Contribution
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated.
+
+1. Fork the Project
+2. Create your Branch: `git checkout -b patch/YourAmazingWork`
+3. Commit your Changes: `git commit -m 'Add some amazing work'`
+4. Push to the Branch: `git push origin patch/YourAmazingWork`
+5. Open a Pull Request
+
+## Credits
+Thanks to [Androz2091](https://github.com/Androz2091) for their initial package. My package is a result of a fork of their work. Check them out!

@@ -11,8 +11,10 @@ export interface ParentChannelOptions {
   childCategory?: Snowflake;
   childAutoDelete: boolean;
   childAutoDeleteIfOwnerLeaves: boolean;
-  childFormat(str: string, count: number): string;
-  childFormatRegex: RegExp;
+  childVoiceFormat(str: string, count: number): string;
+  childVoiceFormatRegex: RegExp;
+  childTextFormat(str: string, count: number): string;
+  childTextFormatRegex: RegExp;
   childMaxUsers?: number;
   childBitrate?: number;
   childPermissionOverwriteOption?: PermissionOverwriteOption;

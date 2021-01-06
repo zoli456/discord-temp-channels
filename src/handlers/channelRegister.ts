@@ -1,26 +1,30 @@
-import { Collection, VoiceChannel } from 'discord.js';
+import { Collection, VoiceChannel, Snowflake, GuildChannel } from 'discord.js';
 import TempChannelsManager from '../index';
 import { ChildChannelData, ParentChannelData } from '../types';
 
-export const handleRegistering = (manager: TempChannelsManager, parent: ParentChannelData) => {
-  const channel = manager.client.channels.resolve(parent.channelID) as VoiceChannel;
+export const handleRegistering = async (manager: TempChannelsManager, parent: ParentChannelData) => {
+  const parentChannel = manager.client.channels.resolve(parent.channelID) as VoiceChannel;
 
   // reconstruct parent's children array when bot is ready
-  if (channel) {
-    const childrenCollection = channel.parent.children.filter(c => parent.options.childFormatRegex.test(c.name));
-    const textChildren = childrenCollection.filter(c => c.isText());
-    const voiceChildren = childrenCollection.filter(c => c.type === 'voice');
+  if (parentChannel && parent.options.childVoiceFormatRegex) {
+    let textChildren = new Collection<Snowflake, GuildChannel>();
+    const voiceChildren = parentChannel.parent.children
+      .filter(c => parent.options.childVoiceFormatRegex.test(c.name) && c.type === 'voice' && c.permissionOverwrites.some(po => po.type === 'member'));
+    if (parent.options.childTextFormatRegex) {
+      textChildren = parentChannel.parent.children
+        .filter(c => parent.options.childTextFormatRegex.test(c.name) && c.isText() && c.permissionOverwrites.some(po => po.type === 'member'));
+    }
 
-    parent.children = voiceChildren.map(child => {
+    parent.children = await Promise.all(voiceChildren.map(async child => {
       const ownerId = child.permissionOverwrites.find(po => po.type === 'member').id;
-      const owner = child.guild.members.resolve(ownerId);
+      const owner = await child.guild.members.fetch(ownerId);
 
       return {
         owner: owner,
         voiceChannel: child as VoiceChannel,
         textChannel: textChildren.find(c => c.permissionOverwrites.some(po => po.type === 'member' && po.id === ownerId)),
       } as ChildChannelData;
-    });
+    }));
 
     // remove children if voice channels are empty when bot is ready
     parent.children = Array.from(
@@ -37,10 +41,10 @@ export const handleRegistering = (manager: TempChannelsManager, parent: ParentCh
             await child.voiceChannel.delete();
             manager.emit('voiceChannelDelete', child.voiceChannel);
 
-            manager.emit('childDelete', manager.client.user, child, manager.client.channels.cache.get(parent.channelID));
+            manager.emit('childDelete', manager.client.user, child, parentChannel);
           }
         })
-        .filter(c => c.voiceChannel.deleted)
+        .filter(c => !c.voiceChannel.deleted)
         .values()
     );
   }
