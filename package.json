@@ -1,6 +1,6 @@
 {
   "name": "@hunteroi/discord-temp-channels",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Based on Androz2091's package, this is a simple framework to facilitate the creation of a temporary voice & text channels system using Discord.js",
   "main": "lib/index.js",
   "bugs": {
