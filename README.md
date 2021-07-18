@@ -1,6 +1,7 @@
+<a href="https://www.npmjs.com/@hunteroi/discord-temp-channels"><img src="https://badge.fury.io/js/%40hunteroi%2Fdiscord-temp-channels.svg" alt="npm version" height="18"></a>
 # Discord Temporary Voice Channels
 
-This framework works the same way its parent does (see [discord-temp-channels](https://github.com/Androz2091/discord-temp-channels) of [Androz2091](https://github.com/Androz2091) except that it brings a few new features: 
+This framework works the same way its parent does (see [discord-temp-channels](https://github.com/Androz2091/discord-temp-channels) of [Androz2091](https://github.com/Androz2091)) except that it brings a few new features: 
 - create/delete a temporary text channel via an event
 - more events like `voiceChannelCreate`, `textChannelCreate` and **2 more**
 - give the temporary channels' owner the `MANAGE_CHANNELS` permission on them
