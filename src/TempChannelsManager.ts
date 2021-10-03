@@ -4,6 +4,11 @@ import {
 	GuildChannel,
 	Collection,
 	Intents,
+	DMChannel,
+	VoiceState,
+	ThreadChannel,
+	Interaction,
+	Message,
 } from 'discord.js';
 import { EventEmitter } from 'events';
 
@@ -53,28 +58,50 @@ export class TempChannelsManager extends EventEmitter {
 			);
 		}
 
+		if (!intents.has(Intents.FLAGS.GUILDS)) {
+			throw new Error('GUILDS intent is required to use this package!');
+		}
+
 		this.channels = new Collection();
 		this.client = client;
 
-		this.client.on('voiceStateUpdate', async (oldState, newState) =>
-			handleVoiceStateUpdate(this, oldState, newState)
+		this.client.on(
+			'voiceStateUpdate',
+			async (oldState: VoiceState, newState: VoiceState) =>
+				handleVoiceStateUpdate(this, oldState, newState)
 		);
-		this.client.on('channelUpdate', async (oldState, newState) =>
-			handleChannelUpdate(
-				this,
-				oldState as GuildChannel,
-				newState as GuildChannel
-			)
+		this.client.on(
+			'channelUpdate',
+			async (
+				oldState: GuildChannel | DMChannel,
+				newState: GuildChannel | DMChannel
+			) =>
+				handleChannelUpdate(
+					this,
+					oldState as GuildChannel,
+					newState as GuildChannel
+				)
 		);
-		this.client.on('channelDelete', async (channel) =>
+		this.client.on('channelDelete', async (channel: GuildChannel | DMChannel) =>
 			handleChannelDelete(this, channel as GuildChannel)
 		);
-
-		this.on(TempChannelsManagerEvents.channelRegister, async (parent) =>
-			handleRegistering(this, parent)
+		this.client.on(
+			'threadUpdate',
+			async (oldState: ThreadChannel, newState: ThreadChannel) =>
+				handleChannelUpdate(this, oldState, newState)
 		);
-		this.on(TempChannelsManagerEvents.createText, async (message) =>
-			handleTextCreation(this, message)
+		this.client.on('threadDelete', async (channel: ThreadChannel) =>
+			handleChannelDelete(this, channel)
+		);
+
+		this.on(
+			TempChannelsManagerEvents.channelRegister,
+			async (parent: ParentChannelData) => handleRegistering(this, parent)
+		);
+		this.on(
+			TempChannelsManagerEvents.createText,
+			async (interactionOrMessage: Interaction | Message) =>
+				handleTextCreation(this, interactionOrMessage)
 		);
 	}
 
@@ -84,7 +111,7 @@ export class TempChannelsManager extends EventEmitter {
 	 * @param {Snowflake} channelId
 	 * @param {ParentChannelOptions} [options={
 	 *       childCategory: null,
-	 *       childAutoDelete: true,
+	 *       childAutoDeleteIfEmpty: true,
 	 *       childAutoDeleteIfOwnerLeaves: false,
 	 *       childFormat: (name, count) => `[DRoom #${count}] ${name}`,
 	 *       childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
@@ -179,7 +206,7 @@ export class TempChannelsManager extends EventEmitter {
  * Emitted when a text channel is created.
  * @event TempChannelsManager#textChannelCreate
  * @see TempChannelsManagerEvents#textChannelCreate
- * @param {Discord.TextChannel} textChannel The text channel
+ * @param {Discord.TextChannel | Discord.ThreadChannel} textChannel The text channel
  * @param {Discord.Interaction | Discord.Message} interactionOrMessage Either the interaction or the message that triggered the activity
  * @example
  * manager.on('textChannelCreate', (textChannel, interactionOrMessage) => {});
@@ -189,7 +216,7 @@ export class TempChannelsManager extends EventEmitter {
  * Emitted when a text channel is deleted.
  * @event TempChannelsManager#textChannelDelete
  * @see TempChannelsManagerEvents#textChannelDelete
- * @param {Discord.TextChannel} textChannel The text channel
+ * @param {Discord.TextChannel | Discord.ThreadChannel} textChannel The text channel
  * @param {Discord.Interaction | Discord.Message} interactionOrMessage Either the interaction or the message that triggered the activity
  * @example
  * manager.on('textChannelDelete', (textChannel, interactionOrMessage) => {});

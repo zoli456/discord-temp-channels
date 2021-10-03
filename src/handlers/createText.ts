@@ -6,6 +6,9 @@ import {
 	GuildMember,
 	Interaction,
 	Message,
+	Snowflake,
+	ThreadChannel,
+	ThreadAutoArchiveDuration,
 } from 'discord.js';
 
 import { TempChannelsManagerEvents } from '../TempChannelsManagerEvents';
@@ -15,6 +18,42 @@ export const handleTextCreation = async (
 	manager: TempChannelsManager,
 	interactionOrMessage: Interaction | Message
 ) => {
+	async function createTextChannel(channelName: string): Promise<TextChannel> {
+		return (await interactionOrMessage.guild.channels.create(channelName, {
+			parent: parent.options.childCategory,
+			type: Constants.ChannelTypes.GUILD_TEXT,
+			permissionOverwrites: [
+				{
+					id: owner.id,
+					type: Constants.OverwriteTypes[
+						Constants.OverwriteTypes.member
+					] as OverwriteType,
+					allow: Permissions.FLAGS.MANAGE_CHANNELS,
+				},
+			],
+		})) as TextChannel;
+	}
+
+	async function createThreadChannel(
+		parentId: Snowflake,
+		channelName: string,
+		autoArchiveDuration: ThreadAutoArchiveDuration
+	): Promise<ThreadChannel> {
+		const parentChannel = (await interactionOrMessage.guild.channels.fetch(
+			parentId
+		)) as TextChannel;
+		if (!parentChannel) return;
+
+		const thread = await parentChannel.threads.create({
+			name: channelName,
+			autoArchiveDuration,
+		});
+
+		thread.members.add(interactionOrMessage.member.user.id);
+
+		return thread;
+	}
+
 	if (!manager || !interactionOrMessage) return;
 
 	const owner = interactionOrMessage.member as GuildMember;
@@ -39,7 +78,12 @@ export const handleTextCreation = async (
 	const child = parent.children.find(
 		(c) => c.voiceChannel.id === voiceChannel.id
 	);
-	if (!child || child.owner.id !== owner.id) return;
+	if (!child || child.owner.id !== owner.id) {
+		return manager.emit(
+			TempChannelsManagerEvents.voiceNotExisting,
+			interactionOrMessage
+		);
+	}
 
 	if (!child.textChannel) {
 		const count = parent.children.indexOf(child) + 1;
@@ -48,27 +92,17 @@ export const handleTextCreation = async (
 			count
 		);
 
-		const textChannel = (await interactionOrMessage.guild.channels.create(
-			newChannelName,
-			{
-				parent: parent.options.childCategory,
-				type: Constants.ChannelTypes.GUILD_TEXT,
-				permissionOverwrites: [
-					{
-						id: owner.id,
-						type: Constants.OverwriteTypes[
-							Constants.OverwriteTypes.member
-						] as OverwriteType,
-						allow: Permissions.FLAGS.MANAGE_CHANNELS,
-					},
-				],
-			}
-		)) as TextChannel;
-		child.textChannel = textChannel;
+		child.textChannel = parent.options.textChannelAsThreadParent
+			? await createThreadChannel(
+					parent.options.textChannelAsThreadParent,
+					newChannelName,
+					parent.options.threadArchiveDuration ?? 60
+			  )
+			: await createTextChannel(newChannelName);
 
 		return manager.emit(
 			TempChannelsManagerEvents.textChannelCreate,
-			textChannel,
+			child.textChannel,
 			interactionOrMessage
 		);
 	} else {
