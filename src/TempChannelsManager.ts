@@ -1,24 +1,24 @@
 import {
-	Client,
-	Snowflake,
-	GuildChannel,
-	Collection,
-	Intents,
-	DMChannel,
-	VoiceState,
-	ThreadChannel,
-	Interaction,
-	Message,
+  Client,
+  Snowflake,
+  GuildChannel,
+  Collection,
+  Intents,
+  DMChannel,
+  VoiceState,
+  ThreadChannel,
+  Interaction,
+  Message,
 } from 'discord.js';
 import { EventEmitter } from 'events';
 
 import { ParentChannelData, ParentChannelOptions } from './types';
 import {
-	handleChannelDelete,
-	handleVoiceStateUpdate,
-	handleChannelUpdate,
-	handleTextCreation,
-	handleRegistering,
+  handleChannelDelete,
+  handleVoiceStateUpdate,
+  handleChannelUpdate,
+  handleTextCreation,
+  handleRegistering,
 } from './handlers';
 import { TempChannelsManagerEvents } from './TempChannelsManagerEvents';
 
@@ -29,132 +29,132 @@ import { TempChannelsManagerEvents } from './TempChannelsManagerEvents';
  * @extends {EventEmitter}
  */
 export class TempChannelsManager extends EventEmitter {
-	/**
-	 * The collection of registered parent channels.
-	 * @name TempChannelsManager#channels
-	 * @type {Collection<Snowflake, ParentChannelData>}
-	 */
-	public readonly channels: Collection<Snowflake, ParentChannelData>;
+  /**
+   * The collection of registered parent channels.
+   * @name TempChannelsManager#channels
+   * @type {Collection<Snowflake, ParentChannelData>}
+   */
+  public readonly channels: Collection<Snowflake, ParentChannelData>;
 
-	/**
-	 * The client that instantiated this Manager
-	 * @name TempChannelsManager#client
-	 * @type {Client}
-	 * @readonly
-	 */
-	public readonly client: Client;
+  /**
+   * The client that instantiated this Manager
+   * @name TempChannelsManager#client
+   * @type {Client}
+   * @readonly
+   */
+  public readonly client: Client;
 
-	/**
-	 * Creates an instance of TempChannelsManager.
-	 * @param {Client} [client] The client that instantiated this Manager
-	 */
-	constructor(client: Client) {
-		super();
+  /**
+   * Creates an instance of TempChannelsManager.
+   * @param {Client} [client] The client that instantiated this Manager
+   */
+  constructor(client: Client) {
+    super();
 
-		const intents = new Intents(client.options.intents);
-		if (!intents.has(Intents.FLAGS.GUILD_VOICE_STATES)) {
-			throw new Error(
-				'GUILD_VOICE_STATES intent is required to use this package!'
-			);
-		}
+    const intents = new Intents(client.options.intents);
+    if (!intents.has(Intents.FLAGS.GUILD_VOICE_STATES)) {
+      throw new Error(
+        'GUILD_VOICE_STATES intent is required to use this package!'
+      );
+    }
 
-		if (!intents.has(Intents.FLAGS.GUILDS)) {
-			throw new Error('GUILDS intent is required to use this package!');
-		}
+    if (!intents.has(Intents.FLAGS.GUILDS)) {
+      throw new Error('GUILDS intent is required to use this package!');
+    }
 
-		this.channels = new Collection();
-		this.client = client;
+    this.channels = new Collection();
+    this.client = client;
 
-		this.client.on(
-			'voiceStateUpdate',
-			async (oldState: VoiceState, newState: VoiceState) =>
-				handleVoiceStateUpdate(this, oldState, newState)
-		);
-		this.client.on(
-			'channelUpdate',
-			async (
-				oldState: GuildChannel | DMChannel,
-				newState: GuildChannel | DMChannel
-			) =>
-				handleChannelUpdate(
-					this,
-					oldState as GuildChannel,
-					newState as GuildChannel
-				)
-		);
-		this.client.on('channelDelete', async (channel: GuildChannel | DMChannel) =>
-			handleChannelDelete(this, channel as GuildChannel)
-		);
-		this.client.on(
-			'threadUpdate',
-			async (oldState: ThreadChannel, newState: ThreadChannel) =>
-				handleChannelUpdate(this, oldState, newState)
-		);
-		this.client.on('threadDelete', async (channel: ThreadChannel) =>
-			handleChannelDelete(this, channel)
-		);
+    this.client.on(
+      'voiceStateUpdate',
+      async (oldState: VoiceState, newState: VoiceState) =>
+        handleVoiceStateUpdate(this, oldState, newState)
+    );
+    this.client.on(
+      'channelUpdate',
+      async (
+        oldState: GuildChannel | DMChannel,
+        newState: GuildChannel | DMChannel
+      ) =>
+        handleChannelUpdate(
+          this,
+          oldState as GuildChannel,
+          newState as GuildChannel
+        )
+    );
+    this.client.on('channelDelete', async (channel: GuildChannel | DMChannel) =>
+      handleChannelDelete(this, channel as GuildChannel)
+    );
+    this.client.on(
+      'threadUpdate',
+      async (oldState: ThreadChannel, newState: ThreadChannel) =>
+        handleChannelUpdate(this, oldState, newState)
+    );
+    this.client.on('threadDelete', async (channel: ThreadChannel) =>
+      handleChannelDelete(this, channel)
+    );
 
-		this.on(
-			TempChannelsManagerEvents.channelRegister,
-			async (parent: ParentChannelData) => handleRegistering(this, parent)
-		);
-		this.on(
-			TempChannelsManagerEvents.createText,
-			async (interactionOrMessage: Interaction | Message) =>
-				handleTextCreation(this, interactionOrMessage)
-		);
-	}
+    this.on(
+      TempChannelsManagerEvents.channelRegister,
+      async (parent: ParentChannelData) => handleRegistering(this, parent)
+    );
+    this.on(
+      TempChannelsManagerEvents.createText,
+      async (interactionOrMessage: Interaction | Message) =>
+        handleTextCreation(this, interactionOrMessage)
+    );
+  }
 
-	/**
-	 * Registers a parent channel. When a user joins a it, a child will be created and they will be moved to it.
-	 *
-	 * @param {Snowflake} channelId
-	 * @param {ParentChannelOptions} [options={
-	 *       childCategory: null,
-	 *       childAutoDeleteIfEmpty: true,
-	 *       childAutoDeleteIfOwnerLeaves: false,
-	 *       childFormat: (name, count) => `[DRoom #${count}] ${name}`,
-	 *       childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
-	 *       childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
-	 *     }]
-	 */
-	public registerChannel(
-		channelId: Snowflake,
-		options: ParentChannelOptions = {
-			childCategory: null,
-			childAutoDeleteIfEmpty: true,
-			childAutoDeleteIfOwnerLeaves: false,
-			childVoiceFormat: (name, count) => `[DRoom #${count}] ${name}`,
-			childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
-			childTextFormat: (name, count) => `droom-${count}_${name}`,
-			childTextFormatRegex: /^droom-\d+_/i,
-			childPermissionOverwriteOptions: { MANAGE_CHANNELS: true },
-		}
-	): void {
-		const channelData: ParentChannelData = {
-			channelId,
-			options,
-			children: [],
-		};
-		this.channels.set(channelId, channelData);
-		this.emit(TempChannelsManagerEvents.channelRegister, channelData);
-	}
+  /**
+   * Registers a parent channel. When a user joins a it, a child will be created and they will be moved to it.
+   *
+   * @param {Snowflake} channelId
+   * @param {ParentChannelOptions} [options={
+   *       childCategory: null,
+   *       childAutoDeleteIfEmpty: true,
+   *       childAutoDeleteIfOwnerLeaves: false,
+   *       childFormat: (name, count) => `[DRoom #${count}] ${name}`,
+   *       childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
+   *       childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
+   *     }]
+   */
+  public registerChannel(
+    channelId: Snowflake,
+    options: ParentChannelOptions = {
+      childCategory: null,
+      childAutoDeleteIfEmpty: true,
+      childAutoDeleteIfOwnerLeaves: false,
+      childVoiceFormat: (name, count) => `[DRoom #${count}] ${name}`,
+      childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
+      childTextFormat: (name, count) => `droom-${count}_${name}`,
+      childTextFormatRegex: /^droom-\d+_/i,
+      childPermissionOverwriteOptions: { MANAGE_CHANNELS: true },
+    }
+  ): void {
+    const channelData: ParentChannelData = {
+      channelId,
+      options,
+      children: [],
+    };
+    this.channels.set(channelId, channelData);
+    this.emit(TempChannelsManagerEvents.channelRegister, channelData);
+  }
 
-	/**
-	 * Unregisters a parent channel. When a user joins it, nothing will happen.
-	 *
-	 * @param {Snowflake} channelId
-	 */
-	public unregisterChannel(channelId: Snowflake): void {
-		const channel = this.channels.get(channelId);
-		const isDeleted = this.channels.delete(channelId);
-		if (isDeleted) {
-			this.emit(TempChannelsManagerEvents.channelUnregister, channel);
-			return;
-		}
+  /**
+   * Unregisters a parent channel. When a user joins it, nothing will happen.
+   *
+   * @param {Snowflake} channelId
+   */
+  public unregisterChannel(channelId: Snowflake): void {
+    const channel = this.channels.get(channelId);
+    const isDeleted = this.channels.delete(channelId);
+    if (isDeleted) {
+      this.emit(TempChannelsManagerEvents.channelUnregister, channel);
+      return;
+    }
 
-		this.emit('error', null, `There is no channel with the id ${channelId}`);
-	}
+    this.emit('error', null, `There is no channel with the id ${channelId}`);
+  }
 }
 
 /**

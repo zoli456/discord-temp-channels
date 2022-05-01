@@ -1,8 +1,8 @@
 import {
-	GuildMember,
-	TextChannel,
-	ThreadChannel,
-	VoiceChannel,
+  GuildMember,
+  TextChannel,
+  ThreadChannel,
+  VoiceChannel,
 } from 'discord.js';
 
 /**
@@ -12,27 +12,27 @@ import {
  * @interface ChildChannelData
  */
 export interface ChildChannelData {
-	/**
-	 * The owner of the ticket
-	 *
-	 * @type {GuildMember}
-	 * @memberof ChildChannelData
-	 */
-	owner: GuildMember;
+  /**
+   * The owner of the ticket
+   *
+   * @type {GuildMember}
+   * @memberof ChildChannelData
+   */
+  owner: GuildMember;
 
-	/**
-	 * The created voice channel
-	 *
-	 * @type {VoiceChannel}
-	 * @memberof ChildChannelData
-	 */
-	voiceChannel: VoiceChannel;
+  /**
+   * The created voice channel
+   *
+   * @type {VoiceChannel}
+   * @memberof ChildChannelData
+   */
+  voiceChannel: VoiceChannel;
 
-	/**
-	 * The optional text/thread channel
-	 *
-	 * @type {TextChannel | ThreadChannel}
-	 * @memberof ChildChannelData
-	 */
-	textChannel?: TextChannel | ThreadChannel;
+  /**
+   * The optional text/thread channel
+   *
+   * @type {TextChannel | ThreadChannel}
+   * @memberof ChildChannelData
+   */
+  textChannel?: TextChannel | ThreadChannel;
 }

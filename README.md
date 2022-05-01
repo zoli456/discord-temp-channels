@@ -46,66 +46,66 @@ For exemple, if you try to execute `interaction.editReply` after the interaction
 
 ```ts
 manager.on(
-	TempChannelsManagerEvents.channelRegister,
-	(parent: ParentChannelData) => {}
+  TempChannelsManagerEvents.channelRegister,
+  (parent: ParentChannelData) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.channelUnregister,
-	(parent: ParentChannelData) => {}
+  TempChannelsManagerEvents.channelUnregister,
+  (parent: ParentChannelData) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.voiceChannelCreate,
-	(voiceChannel: VoiceChannel) => {}
+  TempChannelsManagerEvents.voiceChannelCreate,
+  (voiceChannel: VoiceChannel) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.voiceChannelDelete,
-	(voiceChannel: VoiceChannel) => {}
+  TempChannelsManagerEvents.voiceChannelDelete,
+  (voiceChannel: VoiceChannel) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.voiceNotExisting,
-	(interaction: Interaction) => {}
+  TempChannelsManagerEvents.voiceNotExisting,
+  (interaction: Interaction) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.textChannelCreate,
-	(textChannel: TextChannel, interaction: Interaction | undefined) => {}
+  TempChannelsManagerEvents.textChannelCreate,
+  (textChannel: TextChannel, interaction: Interaction | undefined) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.textChannelDelete,
-	(textChannel: TextChannel, interaction: Interaction | undefined) => {}
+  TempChannelsManagerEvents.textChannelDelete,
+  (textChannel: TextChannel, interaction: Interaction | undefined) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.childPrefixChange,
-	(channel: GuildChannel) => {}
+  TempChannelsManagerEvents.childPrefixChange,
+  (channel: GuildChannel) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.childCreate,
-	(
-		member: GuildMember | ClientUser,
-		child: ChildChannelData,
-		parent: ParentChannelData
-	) => {}
+  TempChannelsManagerEvents.childCreate,
+  (
+    member: GuildMember | ClientUser,
+    child: ChildChannelData,
+    parent: ParentChannelData
+  ) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.childDelete,
-	(
-		member: GuildMember | ClientUser,
-		child: ChildChannelData,
-		parent: ParentChannelData
-	) => {}
+  TempChannelsManagerEvents.childDelete,
+  (
+    member: GuildMember | ClientUser,
+    child: ChildChannelData,
+    parent: ParentChannelData
+  ) => {}
 );
 
 manager.on(
-	TempChannelsManagerEvents.error,
-	(error: Error, message: string) => {}
+  TempChannelsManagerEvents.error,
+  (error: Error, message: string) => {}
 );
 ```
 
@@ -115,13 +115,13 @@ In order to trigger the creation/deletion of a text channel, please emit the `Te
 
 ```ts
 client.on('interactionCreate', async (interaction) => {
-	if (interaction.isCommand() && interaction.commandName === 'createtext') {
-		await interaction.deferReply();
-		client.tempChannelsManager.emit(
-			TempChannelsManagerEvents.createText,
-			interaction
-		);
-	}
+  if (interaction.isCommand() && interaction.commandName === 'createtext') {
+    await interaction.deferReply();
+    client.tempChannelsManager.emit(
+      TempChannelsManagerEvents.createText,
+      interaction
+    );
+  }
 });
 ```
 

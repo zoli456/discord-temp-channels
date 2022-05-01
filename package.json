@@ -1,6 +1,6 @@
 {
   "name": "@hunteroi/discord-temp-channels",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Based on Androz2091's package, this is a simple framework to facilitate the creation of a temporary voice & text channels system using Discord.js",
   "main": "lib/index.js",
   "bugs": {
@@ -12,10 +12,7 @@
     "temporary channels",
     "discordbot"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/HunteRoi/discord-temp-channels.git"
-  },
+  "repository": "git://github.com/hunteroi/discord-temp-channels.git",
   "author": "HunteRoi <me@tinaeldevresse.eu> (https://tinaeldevresse.eu/)",
   "funding": "https://github.com/sponsors/hunteroi",
   "engines": {
@@ -24,11 +21,10 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\" --tab-width 4",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\" \"example/**/*.ts\" \"example/**/*.js\" ",
     "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run build",
-    "example": "npm run build & node ./examples/withTempChannelsManager.js",
-    "example2": "npm run build & node ./examples/withClientWithTempManager.js"
+    "example": "yarn build & node ./examples/withTempChannelsManager.js",
+    "example2": "yarn build & node ./examples/withClientWithTempManager.js"
   },
   "dependencies": {
     "@discordjs/builders": "^0.6.0",

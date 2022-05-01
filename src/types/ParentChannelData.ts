@@ -8,27 +8,27 @@ import { ChildChannelData, ParentChannelOptions } from './';
  * @interface ParentChannelData
  */
 export interface ParentChannelData {
-	/**
-	 * The unique identifier of the channel
-	 *
-	 * @type {Snowflake}
-	 * @memberof ParentChannelData
-	 */
-	channelId: Snowflake;
+  /**
+   * The unique identifier of the channel
+   *
+   * @type {Snowflake}
+   * @memberof ParentChannelData
+   */
+  channelId: Snowflake;
 
-	/**
-	 * The customization parameters of this channel and the related children.
-	 *
-	 * @type {ParentChannelOptions}
-	 * @memberof ParentChannelData
-	 */
-	options: ParentChannelOptions;
+  /**
+   * The customization parameters of this channel and the related children.
+   *
+   * @type {ParentChannelOptions}
+   * @memberof ParentChannelData
+   */
+  options: ParentChannelOptions;
 
-	/**
-	 * The related children channels related to this parent.
-	 *
-	 * @type {ChildChannelData[]}
-	 * @memberof ParentChannelData
-	 */
-	children: ChildChannelData[];
+  /**
+   * The related children channels related to this parent.
+   *
+   * @type {ChildChannelData[]}
+   * @memberof ParentChannelData
+   */
+  children: ChildChannelData[];
 }
