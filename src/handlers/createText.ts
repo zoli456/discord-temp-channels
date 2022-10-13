@@ -1,14 +1,14 @@
 import {
   OverwriteType,
   TextChannel,
-  Permissions,
-  Constants,
   GuildMember,
   Interaction,
   Message,
   Snowflake,
   ThreadChannel,
   ThreadAutoArchiveDuration,
+  ChannelType,
+  PermissionsBitField,
 } from 'discord.js';
 
 import { TempChannelsManagerEvents } from '../TempChannelsManagerEvents';
@@ -19,16 +19,15 @@ export const handleTextCreation = async (
   interactionOrMessage: Interaction | Message
 ) => {
   async function createTextChannel(channelName: string): Promise<TextChannel> {
-    return (await interactionOrMessage.guild.channels.create(channelName, {
+    return (await interactionOrMessage.guild.channels.create({
+      name: channelName,
       parent: parent.options.childCategory,
-      type: Constants.ChannelTypes.GUILD_TEXT,
+      type: ChannelType.GuildText,
       permissionOverwrites: [
         {
           id: owner.id,
-          type: Constants.OverwriteTypes[
-            Constants.OverwriteTypes.member
-          ] as OverwriteType,
-          allow: Permissions.FLAGS.MANAGE_CHANNELS,
+          type: OverwriteType.Member,
+          allow: PermissionsBitField.Flags.ManageChannels,
         },
       ],
     })) as TextChannel;
@@ -94,10 +93,10 @@ export const handleTextCreation = async (
 
     child.textChannel = parent.options.textChannelAsThreadParent
       ? await createThreadChannel(
-          parent.options.textChannelAsThreadParent,
-          newChannelName,
-          parent.options.threadArchiveDuration ?? 60
-        )
+        parent.options.textChannelAsThreadParent,
+        newChannelName,
+        parent.options.threadArchiveDuration ?? 60
+      )
       : await createTextChannel(newChannelName);
 
     return manager.emit(

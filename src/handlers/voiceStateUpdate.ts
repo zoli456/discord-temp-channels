@@ -1,9 +1,10 @@
 import {
   OverwriteType,
   VoiceState,
-  Permissions,
   VoiceChannel,
   Constants,
+  ChannelType,
+  PermissionsBitField,
 } from 'discord.js';
 import { TempChannelsManager } from '../TempChannelsManager';
 import { TempChannelsManagerEvents } from '../TempChannelsManagerEvents';
@@ -90,18 +91,17 @@ export const handleVoiceStateUpdate = async (
       newState.member.displayName,
       count + 1
     );
-    const voiceChannel = (await newState.guild.channels.create(newChannelName, {
+    const voiceChannel = (await newState.guild.channels.create({
+      name: newChannelName,
       parent: parent.options.childCategory,
       bitrate: parent.options.childBitrate,
       userLimit: parent.options.childMaxUsers,
-      type: Constants.ChannelTypes.GUILD_VOICE,
+      type: ChannelType.GuildVoice,
       permissionOverwrites: [
         {
           id: newState.member.id,
-          type: Constants.OverwriteTypes[
-            Constants.OverwriteTypes.member
-          ] as OverwriteType,
-          allow: Permissions.FLAGS.MANAGE_CHANNELS,
+          type: OverwriteType.Member,
+          allow: PermissionsBitField.Flags.ManageChannels,
         },
       ],
     })) as VoiceChannel;
@@ -115,8 +115,7 @@ export const handleVoiceStateUpdate = async (
             manager.emit(
               TempChannelsManagerEvents.error,
               err,
-              `Couldn't update the permissions of the channel ${
-                voiceChannel.id
+              `Couldn't update the permissions of the channel ${voiceChannel.id
               } for role or user ${roleOrUser.toString()}`
             )
           );

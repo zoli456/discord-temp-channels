@@ -1,4 +1,4 @@
-import { GuildChannel, Constants, ThreadChannel } from 'discord.js';
+import { GuildChannel, ThreadChannel, ChannelType } from 'discord.js';
 import { TempChannelsManagerEvents } from '../TempChannelsManagerEvents';
 import { TempChannelsManager } from '../TempChannelsManager';
 
@@ -26,9 +26,7 @@ export const handleChannelUpdate = async (
   );
   if (!child) return;
 
-  const isVoice =
-    newState.type ===
-    Constants.ChannelTypes[Constants.ChannelTypes.GUILD_VOICE];
+  const isVoice = newState.type === ChannelType.GuildVoice;
   const nameDoesNotHavePrefix = isVoice
     ? !parent.options.childVoiceFormatRegex.test(newState.name)
     : !parent.options.childTextFormatRegex.test(newState.name);

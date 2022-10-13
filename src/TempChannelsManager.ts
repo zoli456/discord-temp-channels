@@ -3,12 +3,17 @@ import {
   Snowflake,
   GuildChannel,
   Collection,
-  Intents,
   DMChannel,
   VoiceState,
   ThreadChannel,
   Interaction,
   Message,
+  IntentsBitField,
+  Constants,
+  PermissionFlagsBits,
+  PermissionOverwrites,
+  ApplicationCommandPermissionType,
+  PermissionsBitField
 } from 'discord.js';
 import { EventEmitter } from 'events';
 
@@ -51,14 +56,14 @@ export class TempChannelsManager extends EventEmitter {
   constructor(client: Client) {
     super();
 
-    const intents = new Intents(client.options.intents);
-    if (!intents.has(Intents.FLAGS.GUILD_VOICE_STATES)) {
+    const intents = new IntentsBitField(client.options.intents);
+    if (!intents.has(IntentsBitField.Flags.GuildVoiceStates)) {
       throw new Error(
         'GUILD_VOICE_STATES intent is required to use this package!'
       );
     }
 
-    if (!intents.has(Intents.FLAGS.GUILDS)) {
+    if (!intents.has(IntentsBitField.Flags.Guilds)) {
       throw new Error('GUILDS intent is required to use this package!');
     }
 
@@ -128,7 +133,7 @@ export class TempChannelsManager extends EventEmitter {
       childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
       childTextFormat: (name, count) => `droom-${count}_${name}`,
       childTextFormatRegex: /^droom-\d+_/i,
-      childPermissionOverwriteOptions: { MANAGE_CHANNELS: true },
+      childPermissionOverwriteOptions: { ['ManageChannels']: true },
     }
   ): void {
     const channelData: ParentChannelData = {

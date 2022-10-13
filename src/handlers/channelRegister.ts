@@ -3,7 +3,8 @@ import {
   VoiceChannel,
   Snowflake,
   TextChannel,
-  Constants,
+  ChannelType,
+  OverwriteType,
 } from 'discord.js';
 import { TempChannelsManager } from '../TempChannelsManager';
 import { TempChannelsManagerEvents } from '../TempChannelsManagerEvents';
@@ -22,49 +23,24 @@ export const handleRegistering = async (
   // reconstruct parent's children array when bot is ready
   if (parentChannel && parent.options.childVoiceFormatRegex) {
     let textChildren = new Collection<Snowflake, TextChannel>();
-    const voiceChildren = parentChannel.parent.children.filter(
-      (c) =>
-        parent.options.childVoiceFormatRegex.test(c.name) &&
-        c.type === Constants.ChannelTypes[Constants.ChannelTypes.GUILD_VOICE] &&
-        c.permissionOverwrites.cache.some(
-          (po) =>
-            po.type ===
-            Constants.OverwriteTypes[Constants.OverwriteTypes.member]
-        )
+    const voiceChildren = parentChannel.parent.children.cache.filter(
+      (c) => parent.options.childVoiceFormatRegex.test(c.name) && c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member)
     );
     if (parent.options.childTextFormatRegex) {
-      textChildren = parentChannel.parent.children.filter(
-        (c) =>
-          parent.options.childTextFormatRegex.test(c.name) &&
-          c.isText() &&
-          c.permissionOverwrites.cache.some(
-            (po) =>
-              po.type ===
-              Constants.OverwriteTypes[Constants.OverwriteTypes.member]
-          )
+      textChildren = parentChannel.parent.children.cache.filter(
+        (c) => parent.options.childTextFormatRegex.test(c.name) && c.type === ChannelType.GuildText && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member)
       ) as Collection<Snowflake, TextChannel>;
     }
 
     parent.children = await Promise.all(
       voiceChildren.map(async (child) => {
-        const ownerId = child.permissionOverwrites.cache.find(
-          (po) =>
-            po.type ===
-            Constants.OverwriteTypes[Constants.OverwriteTypes.member]
-        ).id;
+        const ownerId = child.permissionOverwrites.cache.find((po) => po.type === OverwriteType.Member).id;
         const owner = await child.guild.members.fetch(ownerId);
 
         const channelData: ChildChannelData = {
           owner,
           voiceChannel: child as VoiceChannel,
-          textChannel: textChildren.find((c) =>
-            c.permissionOverwrites.cache.some(
-              (po) =>
-                po.type ===
-                  Constants.OverwriteTypes[Constants.OverwriteTypes.member] &&
-                po.id === ownerId
-            )
-          ),
+          textChannel: textChildren.find((c) => c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member && po.id === ownerId)),
         };
         return channelData;
       })
@@ -102,7 +78,7 @@ export const handleRegistering = async (
             );
           }
         })
-        .filter((c) => !c.voiceChannel.deleted)
+        .filter((c) => c.voiceChannel.deletable)
         .values()
     );
   }
