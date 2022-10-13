@@ -8,12 +8,7 @@ import {
   ThreadChannel,
   Interaction,
   Message,
-  IntentsBitField,
-  Constants,
-  PermissionFlagsBits,
-  PermissionOverwrites,
-  ApplicationCommandPermissionType,
-  PermissionsBitField
+  IntentsBitField
 } from 'discord.js';
 import { EventEmitter } from 'events';
 

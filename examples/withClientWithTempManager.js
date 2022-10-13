@@ -1,10 +1,9 @@
-const { Intents } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { IntentsBitField, SlashCommandBuilder } = require('discord.js');
 const synchronizeSlashCommands = require('discord-sync-commands');
 const { ClientWithTempManager, TempChannelsManagerEvents } = require('../lib');
 
 const client = new ClientWithTempManager({
-  intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS],
+  intents: [IntentsBitField.Flags.GuildVoiceStates, IntentsBitField.Flags.Guilds],
 });
 synchronizeSlashCommands(
   client,
