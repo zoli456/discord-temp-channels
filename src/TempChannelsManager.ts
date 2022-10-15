@@ -255,7 +255,7 @@ export class TempChannelsManager extends EventEmitter {
     if (!parent.options.childCanBeRenamed && nameDoesNotHavePrefix) {
       const count = parent.children.indexOf(child) + 1;
       const name = parent.options.childVoiceFormat(newState.name, count)
-      newState.setName(name);
+      await newState.setName(name);
 
       this.emit(TempChannelsManagerEvents.childPrefixChange, newState);
     }
@@ -331,7 +331,7 @@ export class TempChannelsManager extends EventEmitter {
         newState.member.displayName,
         count + 1
       );
-      const voiceChannel = (await newState.guild.channels.create({
+      const voiceChannel = await newState.guild.channels.create({
         name: newChannelName,
         parent: parent.options.childCategory,
         bitrate: parent.options.childBitrate,
@@ -344,7 +344,7 @@ export class TempChannelsManager extends EventEmitter {
             allow: PermissionsBitField.Flags.ManageChannels,
           },
         ],
-      })) as VoiceChannel;
+      });
       this.emit(TempChannelsManagerEvents.voiceChannelCreate, voiceChannel);
 
       if (parent.options.childPermissionOverwriteOptions) {
@@ -374,7 +374,7 @@ export class TempChannelsManager extends EventEmitter {
         this.client.channels.cache.get(parent.channelId)
       );
 
-      newState.setChannel(voiceChannel.id);
+      await newState.setChannel(voiceChannel.id);
     }
   }
 }
