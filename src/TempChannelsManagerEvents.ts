@@ -2,12 +2,9 @@ export enum TempChannelsManagerEvents {
   channelRegister = 'channelRegister',
   channelUnregister = 'channelUnregister',
 
-  voiceChannelCreate = 'voiceChannelCreate',
-  voiceChannelDelete = 'voiceChannelDelete',
-
-  childCreate = 'childCreate',
+  childAdd = 'childAdd',
+  childRemove = 'childRemove',
   childPrefixChange = 'childPrefixChange',
-  childDelete = 'childDelete',
 
   error = 'error',
 }

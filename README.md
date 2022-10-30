@@ -49,41 +49,29 @@ manager.on(
 );
 
 manager.on(
-  TempChannelsManagerEvents.voiceChannelCreate,
-  (voiceChannel: VoiceChannel) => {}
+  TempChannelsManagerEvents.childAdd,
+  (
+    child: ChildChannelData,
+    parent: ParentChannelData
+  ) => {}
 );
 
 manager.on(
-  TempChannelsManagerEvents.voiceChannelDelete,
-  (voiceChannel: VoiceChannel) => {}
+  TempChannelsManagerEvents.childRemove,
+  (
+    child: ChildChannelData,
+    parent: ParentChannelData
+  ) => {}
 );
 
 manager.on(
   TempChannelsManagerEvents.childPrefixChange,
-  (channel: GuildChannel) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.childCreate,
-  (
-    member: GuildMember | ClientUser,
-    child: ChildChannelData,
-    parent: ParentChannelData
-  ) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.childDelete,
-  (
-    member: GuildMember | ClientUser,
-    child: ChildChannelData,
-    parent: ParentChannelData
-  ) => {}
+  (channel: VoiceChannel) => {}
 );
 
 manager.on(
   TempChannelsManagerEvents.error,
-  (error: Error, message: string) => {}
+  (error: Error | null, message: string) => {}
 );
 ```
 

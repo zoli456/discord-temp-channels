@@ -27,6 +27,7 @@
     "example2": "yarn build & node ./examples/withClientWithTempManager.js"
   },
   "dependencies": {
+    "discord-logs": "^2.2.1",
     "discord.js": "^14.6.0"
   },
   "devDependencies": {
