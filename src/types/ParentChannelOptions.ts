@@ -15,6 +15,14 @@ type Resolvables = RoleResolvable | UserResolvable;
  */
 export interface ParentChannelOptions {
   /**
+   * Whether the child channel should be removed if its parent becomes unregistered.
+   *
+   * @type {boolean}
+   * @memberof ParentChannelOptions
+   */
+  childAutoDeleteIfParentGetsUnregistered?: boolean;
+
+  /**
    * The category in which the child channels should be created.
    *
    * @type {Snowflake}

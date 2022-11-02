@@ -1,5 +1,5 @@
 import { CategoryChannel, ChannelType, Client, DMChannel, Events, Guild, GuildMember, IntentsBitField, NonThreadGuildBasedChannel, OverwriteType, PermissionsBitField, Snowflake, VoiceChannel } from 'discord.js';
-import { ParentChannelData, ParentChannelOptions } from './types';
+import { ChildChannelData, ParentChannelData, ParentChannelOptions } from './types';
 import { VoiceChannelsManager } from './VoiceChannelsManager';
 import { TempChannelsManagerEvents } from './TempChannelsManagerEvents';
 import addDiscordLogs from 'discord-logs';
@@ -44,7 +44,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
      *       childAutoDeleteIfOwnerLeaves: false,
      *       childFormat: (name, count) => `[DRoom #${count}] ${name}`,
      *       childFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
-     *       childPermissionOverwriteOption: { MANAGE_CHANNELS: true }
+     *       childPermissionOverwriteOption: { 'ManageChannels': true }
      *     }]
      */
     public registerChannel(
@@ -55,7 +55,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
             childAutoDeleteIfOwnerLeaves: false,
             childVoiceFormat: (name, count) => `[DRoom #${count}] ${name}`,
             childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
-            childPermissionOverwriteOptions: { ['ManageChannels']: true },
+            childPermissionOverwriteOptions: { 'ManageChannels': true },
         }
     ): void {
         super.registerChannel(channelId, options);
@@ -76,13 +76,29 @@ export class TempChannelsManager extends VoiceChannelsManager {
     }
 
     #listenToChannelEvents(): void {
-        this.client.on('voiceChannelJoin', this.#createNewChild);
-        this.client.on('voiceChannelSwitch', this.#handleChild);
-        this.client.on('voiceChannelLeave', this.#deleteChild);
+        this.client.on('voiceChannelJoin', async (member: GuildMember, channel: VoiceChannel) => await this.#createNewChild.apply(this, [member, channel]));
+        this.client.on('voiceChannelSwitch', async (member: GuildMember, previousChannel: VoiceChannel, currentChannel: VoiceChannel) => await this.#handleChild.apply(this, [member, previousChannel, currentChannel]));
+        this.client.on('voiceChannelLeave', async (member: GuildMember, channel: VoiceChannel) => await this.#checkChildForDeletion.apply(this, [channel]));
 
-        this.client.on(Events.ChannelUpdate, this.#handleChannelRenaming);
-        this.client.on(Events.ChannelDelete, this.#cleanUpAfterDeletion);
-        this.on(TempChannelsManagerEvents.channelRegister, this.#restoreAfterCrash);
+        this.client.on(Events.ChannelUpdate, async (oldState: DMChannel | NonThreadGuildBasedChannel, newState: DMChannel | NonThreadGuildBasedChannel) => await this.#handleChannelRenaming.apply(this, [oldState, newState]));
+        this.client.on(Events.ChannelDelete, (channel: DMChannel | NonThreadGuildBasedChannel) => this.#cleanUpAfterDeletion.apply(this, [channel]));
+        this.on(TempChannelsManagerEvents.channelRegister, async (parent: ParentChannelData) => await this.#restoreAfterCrash.apply(this, [parent]));
+        this.on(TempChannelsManagerEvents.channelUnregister, async (parent: ParentChannelData) => {
+            if (parent.options.childAutoDeleteIfParentGetsUnregistered) {
+                for (const child of parent.children) {
+                    await this.#deleteVoiceChannel.apply(this, [child.voiceChannel]);
+                }
+            }
+        });
+    }
+
+    async #deleteVoiceChannel(channel: VoiceChannel): Promise<void> {
+        try {
+            await channel.delete();
+        }
+        catch (error) {
+            this.emit(TempChannelsManagerEvents.error, error, 'Cannot auto delete channel ' + channel.id);
+        }
     }
 
     async #restoreAfterCrash(parentData: ParentChannelData) {
@@ -98,8 +114,8 @@ export class TempChannelsManager extends VoiceChannelsManager {
             .filter(c => parent.options.childVoiceFormatRegex.test(c.name) && c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
         for (let child of [...children.values()] as VoiceChannel[]) {
             child = await this.client.channels.fetch(child.id) as VoiceChannel;
-            this.bindChannelToParent(parent.channelId, child, child.members.size > 0 ? child.members.first() : bot);
-            await this.#deleteChild(null, child);
+            this.bindChannelToParent(parent, child, child.members.size > 0 ? child.members.first() : bot);
+            await this.#checkChildForDeletion(child);
         }
     }
 
@@ -117,12 +133,11 @@ export class TempChannelsManager extends VoiceChannelsManager {
             const nameWithPrefix = parent.options.childVoiceFormat(newState.name, count);
             await newState.setName(nameWithPrefix);
 
-            this.emit(TempChannelsManagerEvents.childPrefixChange, newState as VoiceChannel);
+            this.emit(TempChannelsManagerEvents.childPrefixChange, child);
         }
     }
 
-
-    async #deleteChild(member: GuildMember, channel: VoiceChannel): Promise<void> {
+    async #checkChildForDeletion(channel: VoiceChannel): Promise<void> {
         const parent = this.getParentChannel(channel.id, true);
         if (!parent) return;
 
@@ -131,16 +146,11 @@ export class TempChannelsManager extends VoiceChannelsManager {
             || (parent.options.childAutoDeleteIfOwnerLeaves && !child.voiceChannel.members.has(child.owner.id));
         if (!shouldBeDeleted) return;
 
-        try {
-            await channel.delete();
-        }
-        catch (error) {
-            this.emit(TempChannelsManagerEvents.error, error, 'Cannot auto delete channel ' + channel.id);
-        }
+        await this.#deleteVoiceChannel(channel);
     }
 
     async #handleChild(member: GuildMember, oldChannel: VoiceChannel, newChannel: VoiceChannel): Promise<void> {
-        await this.#deleteChild(member, oldChannel);
+        await this.#checkChildForDeletion(oldChannel);
         await this.#createNewChild(member, newChannel);
     }
 
@@ -154,18 +164,24 @@ export class TempChannelsManager extends VoiceChannelsManager {
             ...parent.children.map(child => Number(child.voiceChannel.name.match(/\d+/).shift()))
         );
         const name = parent.options.childVoiceFormat(member.displayName, count + 1);
+
+        let categoryChannel: CategoryChannel | null = null;
+        if (parent.options.childCategory) {
+            categoryChannel = await channel.guild.channels.fetch(parent.options.childCategory) as CategoryChannel;
+        }
+        else if (parentChannel.parentId) {
+            categoryChannel = await channel.guild.channels.fetch(parentChannel.parentId) as CategoryChannel;
+        }
+
         const voiceChannel = await channel.guild.channels.create({
             name,
-            parent: parent.options.childCategory ?? parentChannel.parentId,
+            parent: categoryChannel?.id ?? null,
             bitrate: parent.options.childBitrate,
             userLimit: parent.options.childMaxUsers,
             type: ChannelType.GuildVoice,
-            permissionOverwrites: [{
-                id: member.id,
-                type: OverwriteType.Member,
-                allow: PermissionsBitField.Flags.ManageChannels
-            }]
+            permissionOverwrites: categoryChannel ? [...categoryChannel.permissionOverwrites.cache.values()] : []
         });
+        await voiceChannel.permissionOverwrites.edit(member.id, { 'ManageChannels': true });
         if (parent.options.childPermissionOverwriteOptions) {
             for (const roleOrUser of parent.options.childOverwriteRolesAndUsers) {
                 try {
@@ -177,10 +193,9 @@ export class TempChannelsManager extends VoiceChannelsManager {
             }
         }
 
-        this.bindChannelToParent(parent.channelId, voiceChannel, member);
+        this.bindChannelToParent(parent, voiceChannel, member);
         await member.voice.setChannel(voiceChannel);
     }
-
 
     #cleanUpAfterDeletion(channel: DMChannel | NonThreadGuildBasedChannel): void {
         if (!channel || channel.type !== ChannelType.GuildVoice) return;
@@ -194,6 +209,16 @@ export class TempChannelsManager extends VoiceChannelsManager {
         parent = this.getParentChannel(channel.id, true);
         if (!parent) return;
 
-        this.unbindChannelFromParent(parent.channelId, channel.id);
+        this.unbindChannelFromParent(parent, channel.id);
     }
 }
+
+
+/**
+ * Emitted when a voice channel name is changed because it does not respect the prefix regular expression.
+ * @event TempChannelsManager#childPrefixChange
+ * @see TempChannelsManagerEvents#childPrefixChange
+ * @param {ChildChannelData} child The child channel data
+ * @example
+ * manager.on('childPrefixChange', (child) => {});
+ */

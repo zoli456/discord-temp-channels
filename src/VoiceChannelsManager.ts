@@ -72,25 +72,24 @@ export class VoiceChannelsManager extends EventEmitter {
 
         const unregisteredSuccessfully = this.#channels.delete(channelId);
         if (unregisteredSuccessfully) {
-            parent.children.forEach(child => this.unbindChannelFromParent(channelId, child.voiceChannel.id));
             this.emit(TempChannelsManagerEvents.channelUnregister, parent);
+            parent.children.forEach(child => this.unbindChannelFromParent(parent, child.voiceChannel.id));
         }
 
         return unregisteredSuccessfully;
     }
 
     /**
-     * Adds a voice channel as a child of a parent channel.
+     * Adds a voice channel as a child of a parent.
      * Emits the {@link TempChannelsManagerEvents.childAdd} event.
      *
-     * @param {Snowflake} parentChannelId
+     * @param {ParentChannelData} parent
      * @param {VoiceChannel} voiceChannel
      * @param {GuildMember} owner
      * @return {*}  {void}
      * @memberof VoiceChannelsManager
      */
-    public bindChannelToParent(parentChannelId: Snowflake, voiceChannel: VoiceChannel, owner: GuildMember): void {
-        const parent = this.#channels.get(parentChannelId);
+    public bindChannelToParent(parent: ParentChannelData, voiceChannel: VoiceChannel, owner: GuildMember): void {
         if (!parent) return;
 
         const child: ChildChannelData = { owner, voiceChannel };
@@ -99,16 +98,15 @@ export class VoiceChannelsManager extends EventEmitter {
     }
 
     /**
-     * Removes a voice channel from the list of children of a parent channel.
+     * Removes a voice channel from the list of children of a parent.
      * Emits the {@link TempChannelsManagerEvents.childRemove} event.
      *
-     * @param {Snowflake} parentChannelId
+     * @param {ParentChannelData} parent
      * @param {Snowflake} voiceChannelId
      * @return {*}  {void}
      * @memberof VoiceChannelsManager
      */
-    public unbindChannelFromParent(parentChannelId: Snowflake, voiceChannelId: Snowflake): void {
-        const parent = this.#channels.get(parentChannelId);
+    public unbindChannelFromParent(parent: ParentChannelData, voiceChannelId: Snowflake): void {
         if (!parent) return;
 
         const index = parent.children.findIndex(child => child.voiceChannel.id === voiceChannelId);

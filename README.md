@@ -66,7 +66,7 @@ manager.on(
 
 manager.on(
   TempChannelsManagerEvents.childPrefixChange,
-  (channel: VoiceChannel) => {}
+  (child: ChildChannelData) => {}
 );
 
 manager.on(
