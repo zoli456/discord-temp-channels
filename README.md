@@ -12,7 +12,9 @@ This library works the same way its parent does (see [discord-temp-channels](htt
 - reload temporary channels in memory in case the bot restarts while the feature is being used
 - Source code embedded documentation with [JSDoc](https://en.wikipedia.org/wiki/JSDoc)
 
-![IMAGE](./resources/example.gif)
+![IMAGE](https://raw.githubusercontent.com/HunteRoi/discord-temp-channels/master/assets/example.gif)
+
+See [./examples/index.js](https://github.com/hunteroi/discord-temp-channels/tree/master/examples/index.js) and [./examples/index2.js](https://github.com/hunteroi/discord-temp-channels/tree/master/examples/index2.js).
 
 ## Prerequisites ⚠️
 
@@ -30,10 +32,6 @@ You also must not forget to include [mandatory intents](#mandatory-intents) as w
 ```sh
 npm install --save @hunteroi/discord-temp-channels
 ```
-
-## Examples
-
-See [./examples/withTempChannelsManager.js](examples/withTempChannelsManager.js) and [./examples/withClientWithTempManager.js](examples/withClientWithTempManager.js).
 
 ## Events
 
