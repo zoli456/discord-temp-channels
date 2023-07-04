@@ -1,22 +1,23 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "./lib",
-    "strict": true,
-    "resolveJsonModule": true,
-    "strictNullChecks": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["lib/*", "node_modules/*"],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "docs/api-docs",
-    "exclude": ["node_modules"],
-    "excludePrivate": true,
-    "hideGenerator": true
-  }
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "commonjs",
+      "declaration": true,
+      "outDir": "./lib",
+      "strict": true,
+      "resolveJsonModule": true,
+      "strictNullChecks": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["lib/*", "node_modules/*"],
+    "typedocOptions": {
+      "entryPoints": ["src/index.ts"],
+      "out": "docs/api-docs",
+      "exclude": ["node_modules"],
+      "excludePrivate": true,
+      "hideGenerator": true
+    }
 }
+  

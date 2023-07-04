@@ -87,10 +87,10 @@ export class VoiceChannelsManager extends EventEmitter {
      * @return {*}  {void}
      * @memberof VoiceChannelsManager
      */
-    public bindChannelToParent(parent: ParentChannelData, voiceChannel: VoiceChannel, owner: GuildMember): void {
+    public bindChannelToParent(parent: ParentChannelData, voiceChannel: VoiceChannel, owner: GuildMember, orderChannel: number): void {
         if (!parent) return;
 
-        const child: ChildChannelData = { owner, voiceChannel };
+        const child: ChildChannelData = { owner, voiceChannel, orderChannel };
         parent.children.push(child);
         this.emit(TempChannelsManagerEvents.childAdd, child, parent);
     }

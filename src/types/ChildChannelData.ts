@@ -1,7 +1,4 @@
-import {
-  GuildMember,
-  VoiceChannel
-} from 'discord.js';
+import { GuildMember, VoiceChannel } from 'discord.js';
 
 /**
  * The data about a temporary channel ticket
@@ -25,4 +22,12 @@ export interface ChildChannelData {
    * @memberof ChildChannelData
    */
   voiceChannel: VoiceChannel;
+
+  /**
+   * The created voice channel
+   *
+   * @type {number}
+   * @memberof ChildChannelData
+   */
+  orderChannel: number;
 }

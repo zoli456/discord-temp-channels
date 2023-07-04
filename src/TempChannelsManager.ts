@@ -81,7 +81,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
         this.client.on('voiceChannelSwitch', async (member: GuildMember, previousChannel: VoiceChannel, currentChannel: VoiceChannel) => await this.#handleChild.apply(this, [member, previousChannel, currentChannel]));
         this.client.on('voiceChannelLeave', async (member: GuildMember, channel: VoiceChannel) => await this.#checkChildForDeletion.apply(this, [channel]));
 
-        this.client.on(Events.ChannelUpdate, async (oldState: DMChannel | NonThreadGuildBasedChannel, newState: DMChannel | NonThreadGuildBasedChannel) => await this.#handleChannelRenaming.apply(this, [oldState, newState]));
+        // this.client.on(Events.ChannelUpdate, async (oldState: DMChannel | NonThreadGuildBasedChannel, newState: DMChannel | NonThreadGuildBasedChannel) => await this.#handleChannelRenaming.apply(this, [oldState, newState]));
         this.client.on(Events.ChannelDelete, (channel: DMChannel | NonThreadGuildBasedChannel) => this.#cleanUpAfterDeletion.apply(this, [channel]));
         this.on(TempChannelsManagerEvents.channelRegister, async (parent: ParentChannelData) => await this.#restoreAfterCrash.apply(this, [parent]));
         this.on(TempChannelsManagerEvents.channelUnregister, async (parent: ParentChannelData) => {
@@ -112,14 +112,19 @@ export class TempChannelsManager extends VoiceChannelsManager {
         const bot = await voiceChannel.guild.members.fetch(this.client.user);
         const category = await voiceChannel.guild.channels.fetch(parent.options.childCategory ?? voiceChannel.parentId) as CategoryChannel;
         const children = (category?.children ?? voiceChannel.guild.channels).cache
-            .filter(c => parent.options.childVoiceFormatRegex.test(c.name) && c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
+            .filter(c => c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
+        let count = 1;
         for (let child of [...children.values()] as VoiceChannel[]) {
             child = await this.client.channels.fetch(child.id) as VoiceChannel;
-            this.bindChannelToParent(parent, child, child.members.size > 0 ? child.members.first() : bot);
+            this.bindChannelToParent(parent, child, child.members.size > 0 ? child.members.first() : bot, count);
+            count = count + 1;
             await this.#checkChildForDeletion(child);
         }
     }
 
+    /**
+     * @deprecated The method should not be used
+     */
     async #handleChannelRenaming(oldState: DMChannel | NonThreadGuildBasedChannel, newState: DMChannel | NonThreadGuildBasedChannel): Promise<void> {
         if (oldState.isDMBased() || newState.isDMBased()) return;
         if (oldState.name === newState.name) return;
@@ -160,10 +165,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
         if (!parent) return;
 
         const parentChannel = await this.client.channels.fetch(parent.channelId) as VoiceChannel;
-        const count = Math.max(
-            0,
-            ...parent.children.map(child => Number(child.voiceChannel.name.match(/\d+/).shift()))
-        );
+        const count = parent.children.length;
         const name = parent.options.childVoiceFormat(member.displayName, count + 1);
 
         let categoryChannel: CategoryChannel | null = null;
@@ -202,8 +204,14 @@ export class TempChannelsManager extends VoiceChannelsManager {
             }
         }
 
-        this.bindChannelToParent(parent, voiceChannel, member);
+        // Set a new channel position
+        voiceChannel.setPosition(count + 1)
+            .then(newChannel => console.log(`Channel's new position is ${newChannel.position}`))
+            .catch(console.error);
+
+        this.bindChannelToParent(parent, voiceChannel, member, count);
         await member.voice.setChannel(voiceChannel);
+
     }
 
     #cleanUpAfterDeletion(channel: DMChannel | NonThreadGuildBasedChannel): void {
