@@ -1,5 +1,5 @@
-<a href="https://www.npmjs.com/@hunteroi/discord-temp-channels"><img src="https://img.shields.io/github/v/release/hunteroi/discord-temp-channels?style=for-the-badge" alt="release version"/></a>
-<a href="https://www.npmjs.com/@hunteroi/discord-temp-channels"><img src="https://img.shields.io/npm/dt/@hunteroi/discord-temp-channels?style=for-the-badge" alt="nb downloads npm"/></a>
+<a href="https://www.npmjs.com/@trickstarcandina/discord-temp-channels"><img src="https://img.shields.io/github/v/release/trickstarcandina/discord-temp-channels?style=for-the-badge" alt="release version"/></a>
+<a href="https://www.npmjs.com/@trickstarcandina/discord-temp-channels"><img src="https://img.shields.io/npm/dt/@trickstarcandina/discord-temp-channels?style=for-the-badge" alt="nb downloads npm"/></a>
 
 # Discord Temporary Voice Channels
 
@@ -14,7 +14,7 @@ This library works the same way its parent does (see [discord-temp-channels](htt
 
 ![IMAGE](https://raw.githubusercontent.com/HunteRoi/discord-temp-channels/master/assets/example.gif)
 
-See [./examples/index.js](https://github.com/hunteroi/discord-temp-channels/tree/master/examples/index.js) and [./examples/index2.js](https://github.com/hunteroi/discord-temp-channels/tree/master/examples/index2.js).
+See [./examples/index.js](https://github.com/trickstarcandina/discord-temp-channels/tree/master/examples/index.js) and [./examples/index2.js](https://github.com/trickstarcandina/discord-temp-channels/tree/master/examples/index2.js).
 
 ## Prerequisites ⚠️
 
@@ -30,7 +30,7 @@ You also must not forget to include [mandatory intents](#mandatory-intents) as w
 ## Installation
 
 ```sh
-npm install --save @hunteroi/discord-temp-channels
+npm install --save @trickstarcandina/discord-temp-channels
 ```
 
 ## Events
@@ -85,4 +85,4 @@ Contributions are what make the open source community such an amazing place to b
 
 ## Credits
 
-Thanks to [Androz2091](https://github.com/Androz2091) for their initial package. This package is a fork of their own work. Check them out!
+Thanks to [HunteRoi](https://github.com/HunteRoi) for their initial package. This package is a fork of their own work. Check them out!

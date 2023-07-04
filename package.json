@@ -1,20 +1,19 @@
 {
-  "name": "@hunteroi/discord-temp-channels",
+  "name": "@trickstarcandina/discord-temp-channels",
   "version": "3.2.0",
   "description": "Based on Androz2091's package, this is a simple framework to facilitate the creation of a temporary voice & text channels system using Discord.js",
   "main": "lib/index.js",
   "bugs": {
-    "url": "https://github.com/HunteRoi/discord-temp-channels/issues"
+    "url": "https://github.com/trickstarcandina/discord-temp-channels/issues"
   },
-  "homepage": "https://github.com/HunteRoi/discord-temp-channels#readme",
+  "homepage": "https://github.com/trickstarcandina/discord-temp-channels#readme",
   "keywords": [
     "discordjs",
     "temporary channels",
     "discordbot"
   ],
-  "repository": "git://github.com/hunteroi/discord-temp-channels.git",
-  "author": "HunteRoi <me@tinaeldevresse.eu> (https://tinaeldevresse.eu/)",
-  "funding": "https://github.com/sponsors/hunteroi",
+  "repository": "git://github.com/trickstarcandina/discord-temp-channels.git",
+  "funding": "https://github.com/sponsors/trickstarcandina",
   "engines": {
     "node": ">=16.6.0"
   },

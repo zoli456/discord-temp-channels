@@ -15,5 +15,5 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-          scope: '@hunteroi'
+          scope: '@trickstarcandina'
       - run: yarn
