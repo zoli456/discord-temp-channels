@@ -124,4 +124,13 @@ export interface ParentChannelOptions {
    * @memberof ParentChannelOptions
    */
   childShouldBeACopyOfParent?: boolean;
+
+  /**
+   * List category to restore
+   *
+   * @type {Snowflake[]}
+   * @memberof ParentChannelOptions
+   */
+  listChannelToRestore?: Snowflake[];
+  
 }

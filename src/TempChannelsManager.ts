@@ -56,7 +56,8 @@ export class TempChannelsManager extends VoiceChannelsManager {
             childVoiceFormat: (name, count) => `[DRoom #${count}] ${name}`,
             childVoiceFormatRegex: /^\[DRoom #\d+\]\s+.+/i,
             childPermissionOverwriteOptions: { 'ManageChannels': true },
-            childShouldBeACopyOfParent: false
+            childShouldBeACopyOfParent: false,
+            listChannelToRestore: null
         }
     ): void {
         super.registerChannel(channelId, options);
@@ -112,7 +113,9 @@ export class TempChannelsManager extends VoiceChannelsManager {
         const bot = await voiceChannel.guild.members.fetch(this.client.user);
         const category = await voiceChannel.guild.channels.fetch(parent.options.childCategory ?? voiceChannel.parentId) as CategoryChannel;
         const children = (category?.children ?? voiceChannel.guild.channels).cache
-            .filter(c => c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
+            .filter(c => c.type === ChannelType.GuildVoice 
+                && parent.options.listChannelToRestore.includes(c.id)
+                && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
         let count = 1;
         for (let child of [...children.values()] as VoiceChannel[]) {
             child = await this.client.channels.fetch(child.id) as VoiceChannel;
