@@ -168,8 +168,8 @@ export class TempChannelsManager extends VoiceChannelsManager {
         if (!parent) return;
 
         const parentChannel = await this.client.channels.fetch(parent.channelId) as VoiceChannel;
-        const count = parent.children.length;
-        const name = parent.options.childVoiceFormat(member.displayName, count + 1);
+        const count = parent.children.length + 1;
+        const name = parent.options.childVoiceFormat(member.displayName, count);
 
         let categoryChannel: CategoryChannel | null = null;
         if (parent.options.childCategory) {
@@ -208,7 +208,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
         }
 
         // Set a new channel position
-        voiceChannel.setPosition(count + 1)
+        voiceChannel.setPosition(count)
             .then(newChannel => console.log(`Channel's new position is ${newChannel.position}`))
             .catch(console.error);
 
