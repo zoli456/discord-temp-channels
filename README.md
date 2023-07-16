@@ -33,45 +33,10 @@ You also must not forget to include [mandatory intents](#mandatory-intents) as w
 npm install --save @trickstarcandina/discord-temp-channels
 ```
 
-## Events
+## Example
 
-```ts
-manager.on(
-  TempChannelsManagerEvents.channelRegister,
-  (parent: ParentChannelData) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.channelUnregister,
-  (parent: ParentChannelData) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.childAdd,
-  (
-    child: ChildChannelData,
-    parent: ParentChannelData
-  ) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.childRemove,
-  (
-    child: ChildChannelData,
-    parent: ParentChannelData
-  ) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.childPrefixChange,
-  (child: ChildChannelData) => {}
-);
-
-manager.on(
-  TempChannelsManagerEvents.error,
-  (error: Error | null, message: string) => {}
-);
-```
+View this repository: 
+https://github.com/trickstarcandina/discordjs-auto-voice/tree/main
 
 ## Contribution
 
