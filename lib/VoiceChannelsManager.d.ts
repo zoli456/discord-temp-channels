@@ -1,8 +1,6 @@
-import { Collection, GuildMember, Snowflake, VoiceChannel } from 'discord.js';
-import { ChildChannelData, ParentChannelData, ParentChannelOptions } from './types';
+import { GuildMember, Snowflake, VoiceChannel } from 'discord.js';
+import { ParentChannelData, ParentChannelOptions } from './types';
 import { EventEmitter } from 'events';
-import { TempChannelsManagerEvents } from './TempChannelsManagerEvents';
-
 /**
  * A voice channels manager, handling the relationship between parents and children channels.
  *
@@ -10,19 +8,13 @@ import { TempChannelsManagerEvents } from './TempChannelsManagerEvents';
  * @class VoiceChannelsManager
  * @extends {EventEmitter}
  */
-export class VoiceChannelsManager extends EventEmitter {
-    readonly #channels: Collection<Snowflake, ParentChannelData>;
-
+export declare class VoiceChannelsManager extends EventEmitter {
+    #private;
     /**
      * Creates an instance of VoiceChannelsManager.
      * @memberof VoiceChannelsManager
      */
-    constructor() {
-        super();
-
-        this.#channels = new Collection();
-    }
-
+    constructor();
     /**
      * Gets the parent channel either based on its ID or by looking for a match
      * on the provided ID and its list of children.
@@ -33,15 +25,7 @@ export class VoiceChannelsManager extends EventEmitter {
      * @return {*}  {ParentChannelData}
      * @memberof VoiceChannelsManager
      */
-    protected getParentChannel(channelId: Snowflake, lookAsChild: boolean = false): ParentChannelData {
-        if (lookAsChild) {
-            return this.#channels.find(parent =>
-                parent.children.some(child => child.voiceChannel.id === channelId)
-            );
-        }
-        return this.#channels.get(channelId);
-    }
-
+    protected getParentChannel(channelId: Snowflake, lookAsChild?: boolean): ParentChannelData;
     /**
      * Adds a parent channel into the collection.
      * Emits the {@link TempChannelsManagerEvents.channelRegister} event.
@@ -50,12 +34,7 @@ export class VoiceChannelsManager extends EventEmitter {
      * @param {ParentChannelOptions} options
      * @memberof VoiceChannelsManager
      */
-    public registerChannel(channelId: Snowflake, options: ParentChannelOptions): void {
-        const parent: ParentChannelData = { channelId, options, children: [] };
-        this.#channels.set(channelId, parent);
-        this.emit(TempChannelsManagerEvents.channelRegister, parent);
-    }
-
+    registerChannel(channelId: Snowflake, options: ParentChannelOptions): void;
     /**
      * Removes a registered parent channel from the collection, unbinding all children at the same time.
      * Emits the {@link TempChannelsManagerEvents.channelUnregister} event.
@@ -64,19 +43,7 @@ export class VoiceChannelsManager extends EventEmitter {
      * @return {*}  {boolean}
      * @memberof VoiceChannelsManager
      */
-    public unregisterChannel(channelId: Snowflake): boolean {
-        const parent = this.#channels.get(channelId);
-        if (!parent) return false;
-
-        const unregisteredSuccessfully = this.#channels.delete(channelId);
-        if (unregisteredSuccessfully) {
-            this.emit(TempChannelsManagerEvents.channelUnregister, parent);
-            parent.children.forEach(child => this.unbindChannelFromParent(parent, child.voiceChannel.id));
-        }
-
-        return unregisteredSuccessfully;
-    }
-
+    unregisterChannel(channelId: Snowflake): boolean;
     /**
      * Adds a voice channel as a child of a parent.
      * Emits the {@link TempChannelsManagerEvents.childAdd} event.
@@ -87,14 +54,7 @@ export class VoiceChannelsManager extends EventEmitter {
      * @return {*}  {void}
      * @memberof VoiceChannelsManager
      */
-    public bindChannelToParent(parent: ParentChannelData, voiceChannel: VoiceChannel, owner: GuildMember, orderChannel: number): void {
-        if (!parent) return;
-
-        const child: ChildChannelData = { owner, voiceChannel, orderChannel };
-        parent.children.push(child);
-        this.emit(TempChannelsManagerEvents.childAdd, child, parent);
-    }
-
+    bindChannelToParent(parent: ParentChannelData, voiceChannel: VoiceChannel, owner: GuildMember, orderChannel: number): void;
     /**
      * Removes a voice channel from the list of children of a parent.
      * Emits the {@link TempChannelsManagerEvents.childRemove} event.
@@ -104,17 +64,8 @@ export class VoiceChannelsManager extends EventEmitter {
      * @return {*}  {void}
      * @memberof VoiceChannelsManager
      */
-    public unbindChannelFromParent(parent: ParentChannelData, voiceChannelId: Snowflake): void {
-        if (!parent) return;
-
-        const index = parent.children.findIndex(c => c.voiceChannel.id === voiceChannelId);
-        if (index === -1) return;
-
-        const [child] = parent.children.splice(index, 1);
-        this.emit(TempChannelsManagerEvents.childRemove, child, parent);
-    }
+    unbindChannelFromParent(parent: ParentChannelData, voiceChannelId: Snowflake): void;
 }
-
 /**
  * Emitted when a parent channel is registered.
  * @event VoiceChannelsManager#channelRegister
@@ -123,7 +74,6 @@ export class VoiceChannelsManager extends EventEmitter {
  * @example
  * manager.on('channelRegister', (parent) => {});
  */
-
 /**
  * Emitted when a parent channel is unregistered.
  * @event VoiceChannelsManager#channelUnregister
@@ -132,7 +82,6 @@ export class VoiceChannelsManager extends EventEmitter {
  * @example
  * manager.on('channelUnregister', (parent) => {});
  */
-
 /**
  * Emitted when a voice channel is added as a child to a parent.
  * @event VoiceChannelsManager#childAdd
@@ -142,7 +91,6 @@ export class VoiceChannelsManager extends EventEmitter {
  * @example
  * manager.on('childAdd', (child, parent) => {});
  */
-
 /**
  * Emitted when a voice channel is removed from the list of children of a parent.
  * @event VoiceChannelsManager#childRemove
@@ -151,4 +99,4 @@ export class VoiceChannelsManager extends EventEmitter {
  * @param {ParentChannelData} parent The parent channel data
  * @example
  * manager.on('childRemove', (child, parent) => {});
- */
+ */ 
