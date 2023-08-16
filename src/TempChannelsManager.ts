@@ -103,7 +103,7 @@ export class TempChannelsManager extends VoiceChannelsManager {
         }
     }
 
-    async #restoreAfterCrash(parentData: ParentChannelData) {
+     async #restoreAfterCrash(parentData: ParentChannelData) {
         if (!parentData) return;
 
         const parent = this.getParentChannel(parentData.channelId);
@@ -113,14 +113,10 @@ export class TempChannelsManager extends VoiceChannelsManager {
         const bot = await voiceChannel.guild.members.fetch(this.client.user);
         const category = await voiceChannel.guild.channels.fetch(parent.options.childCategory ?? voiceChannel.parentId) as CategoryChannel;
         const children = (category?.children ?? voiceChannel.guild.channels).cache
-            .filter(c => c.type === ChannelType.GuildVoice 
-                && parent.options.listChannelToRestore.includes(c.id)
-                && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
-        let count = 1;
+            .filter(c => parent.options.childVoiceFormatRegex.test(c.name) && c.type === ChannelType.GuildVoice && c.permissionOverwrites.cache.some((po) => po.type === OverwriteType.Member));
         for (let child of [...children.values()] as VoiceChannel[]) {
             child = await this.client.channels.fetch(child.id) as VoiceChannel;
-            this.bindChannelToParent(parent, child, child.members.size > 0 ? child.members.first() : bot, count);
-            count = count + 1;
+            this.bindChannelToParent(parent, child, child.members.size > 0 ? child.members.first() : bot);
             await this.#checkChildForDeletion(child);
         }
     }
